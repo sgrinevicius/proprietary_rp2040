@@ -1,0 +1,13 @@
+# Caches de menuconfig (regeneráveis a partir dos defconfigs)
+**/.config
+
+# Artefatos de build
+build/
+*.o
+*.a
+*.bin
+*.elf
+*.map
+
+# Compactados de backup
+*.zip

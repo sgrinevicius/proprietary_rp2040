@@ -1,0 +1,43 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/gpio_blink/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define a flag de ativacao do aplicativo 'gpio_blink' no
+# sistema de configuracao Kconfig do NuttX.
+#
+# A flag CONFIG_PROPRIETARY_GPIO_BLINK controla se o aplicativo sera
+# compilado e incluido no firmware.
+#
+# PAPEL DO APLICATIVO 'GPIO_BLINK':
+#
+# - Demonstra o controle de um LED via GPIO.
+# - Alterna o estado do pino em intervalos regulares.
+# - Serve como referencia para aplicativos de hardware.
+#
+########################################################################################################################
+
+# Definicao da flag de ativacao do aplicativo
+config PROPRIETARY_GPIO_BLINK
+
+    # Tipo da opcao: booleana
+    bool "Aplicativo GPIO Blink"
+
+    # Valor padrao: ativado
+    default y
+
+    # Ajuda descritiva
+    ---help---
+        Habilita a compilacao do aplicativo 'gpio_blink'.
+
+        O aplicativo realiza um blink periodico em um LED conectado ao
+        GPIO, demonstrando a configuracao de pinos como saida.
+
+        Nao possui dependencias adicionais.
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

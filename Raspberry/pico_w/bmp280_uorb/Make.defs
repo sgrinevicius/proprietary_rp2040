@@ -1,0 +1,19 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_esp32/apps/external/Raspberry/pico_w/bmp280_uorb/Make.defs
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL:
+# Adiciona o diretório do aplicativo 'bmp280_uorb' à lista de aplicativos
+# configurados quando a flag CONFIG_PROPRIETARY_BMP280_UORB está ativa.
+#
+########################################################################################################################
+
+ifeq ($(CONFIG_PROPRIETARY_BMP280_UORB),y)
+CONFIGURED_APPS += $(APPDIR)/external/Raspberry/pico_w/bmp280_uorb
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Make.defs'
+########################################################################################################################

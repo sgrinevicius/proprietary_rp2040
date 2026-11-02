@@ -1,0 +1,43 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/netled/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define a flag de ativacao do aplicativo 'gpio_blink' no
+# sistema de configuracao Kconfig do NuttX.
+#
+# A flag CONFIG_PROPRIETARY_NETLED controla se o aplicativo sera
+# compilado e incluido no firmware.
+#
+# PAPEL DO APLICATIVO 'NETLED':
+#
+# - Controle do Led onboard do rádio Wi-Fi.
+# - Alterna o estado do pino em intervalos regulares.
+# - Serve como referencia para aplicativos de hardware.
+#
+########################################################################################################################
+
+# Definicao da flag de ativacao do aplicativo
+config PROPRIETARY_NETLED
+
+    # Tipo da opcao: booleana
+    bool "Aplicativo NETLED"
+
+    # Valor padrao: ativado
+    default y
+
+    # Ajuda descritiva
+    ---help---
+        Habilita a compilacao do aplicativo 'netled'.
+
+        O aplicativo realiza a ativação do LED onboard 
+        ao se obter um endereço IP válido.
+
+        Nao possui dependencias adicionais.
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

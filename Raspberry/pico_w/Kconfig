@@ -1,0 +1,46 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo atua como o ponto de entrada para os menus Kconfig dos
+# aplicativos do Raspberry Pi Pico W. Sua funcao primaria e agrupar os
+# Kconfigs dos aplicativos do chip, permitindo que as opcoes de ativacao
+# aparecam no menuconfig global do NuttX.
+#
+# ESTRATEGIA DE RESOLUCAO DE CAMINHOS:
+#
+# - Os caminhos utilizam a variavel interna $APPSDIR.
+# - Cada aplicativo possui seu proprio Kconfig, incluido aqui via 'source'.
+#
+# ESTRUTURA DE ORGANIZACAO:
+#
+#   PICO-W
+#   |
+#   ├── hello_world
+#   ├── button_led
+#   └── gpio_blink
+#
+########################################################################################################################
+
+# Menu que agrupa os aplicativos do Pico W
+menu "PICO-W"
+
+source "$APPSDIR/external/Raspberry/pico_w/hello_world/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/button_led/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/gpio_blink/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/netled/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/alive_mqtt/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/i2c_scanner/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/bmp280/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/bmp280_uorb/Kconfig"
+source "$APPSDIR/external/Raspberry/pico_w/bmp280_mqtt/Kconfig"
+
+endmenu
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

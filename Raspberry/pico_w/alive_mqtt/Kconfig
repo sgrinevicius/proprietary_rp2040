@@ -1,0 +1,43 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/alive_mqtt/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define a flag de ativacao do aplicativo 'alive_mqtt' no
+# sistema de configuracao Kconfig do NuttX.
+#
+# A flag CONFIG_PROPRIETARY_ALIVE_MQTT controla se o aplicativo sera
+# compilado e incluido no firmware.
+#
+# PAPEL DO APLICATIVO 'ALIVE_MQTT':
+#
+# - Publica periodicamente um sinal de vida no broker MQTT.
+# - Monitora a conectividade da interface wlan0.
+# - Demonstra a integracao com a biblioteca MQTT-C.
+#
+########################################################################################################################
+
+# Definicao da flag de ativacao do aplicativo
+config PROPRIETARY_ALIVE_MQTT
+
+    # Tipo da opcao: booleana
+    bool "Aplicativo Alive MQTT"
+
+    # Valor padrao: ativado
+    default y
+
+    # Ajuda descritiva
+    ---help---
+        Habilita a compilacao do aplicativo 'alive_mqtt'.
+
+        O aplicativo publica a mensagem "alive" no topico "pico/status"
+        a cada 30 segundos, indicando que a placa esta operacional.
+
+        Requer a biblioteca MQTT-C habilitada (NETUTILS_MQTTC=y).
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

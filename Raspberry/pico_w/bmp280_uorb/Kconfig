@@ -1,0 +1,71 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/bmp280/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define as opcoes de configuracao do aplicativo 'bmp280_uorb'.
+# A flag principal CONFIG_PROPRIETARY_BMP280_UORB controla a compilacao e
+# inclusao do aplicativo no firmware.
+#
+# FUNCIONAMENTO DO MECANISMO DE CONFIGURACAO:
+#
+# - Quando a flag principal e ativada, os parametros adicionais (PROGNAME,
+#   PRIORITY, STACKSIZE) tornam-se visiveis e editaveis no menuconfig.
+# - O Makefile do aplicativo utiliza esses valores para registrar o programa
+#   no NSH e definir o comportamento de execucao.
+#
+# ESTRATEGIA DE RESOLUCAO DE CAMINHOS:
+#
+# - Este arquivo e referenciado pelo Kconfig mestre em
+#   'apps/external/Raspberry/pico_w/Kconfig' pela linha:
+#   source "$APPSDIR/external/Raspberry/pico_w/bmp280_uorb/Kconfig"
+#
+########################################################################################################################
+
+# Flag principal: ativa/desativa o aplicativo
+config PROPRIETARY_BMP280_UORB
+
+    # Tipo booleano (aparece como caixa de seleção)
+    bool "Leitura do BMP280 via uORB"
+
+    # Valor padrão: desabilitado
+    default n
+
+    # Dependência do driver BMP280 uORB
+    depends on SENSORS_BMP280
+
+    # Dependência de habilitação de sensores
+    depends on SENSORS
+
+    # Dependência do framework uORB (fornece as funções orb_*)
+    depends on UORB
+
+    # Ajuda descritiva
+    ---help---
+        Enable the BMP280 uORB app (Phase 2)
+
+if PROPRIETARY_BMP280_UORB
+
+config PROPRIETARY_BMP280_UORB_PROGNAME
+    string "Program name"
+    default "bmp280_uorb"
+    ---help---
+        This is the name of the program that will be used when the NSH ELF
+        program is installed.
+
+config PROPRIETARY_BMP280_UORB_PRIORITY
+    int "BMP280 uORB task priority"
+    default 100
+
+config PROPRIETARY_BMP280_UORB_STACKSIZE
+    int "BMP280 uORB stack size"
+    default DEFAULT_TASK_STACKSIZE
+
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

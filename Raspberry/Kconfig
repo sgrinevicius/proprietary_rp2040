@@ -1,0 +1,44 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo atua como o ponto de entrada para os menus Kconfig dos
+# aplicativos da plataforma Raspberry. Sua funcao primaria e agrupar os
+# Kconfigs dos chips suportados, permitindo que as opcoes de ativacao dos
+# aplicativos aparecam no menuconfig global do NuttX.
+#
+# ESTRATEGIA DE RESOLUCAO DE CAMINHOS:
+#
+# - Os caminhos utilizam a variavel interna $APPSDIR.
+# - O subdiretorio 'pico_w' agrupa os aplicativos do Raspberry Pi Pico W.
+#
+# ESTRUTURA DE ORGANIZACAO:
+#
+#   Proprietary Applications
+#   |
+#   └── Raspberry
+#       |
+#       └── PICO-W
+#           |
+#           ├── hello_world
+#           ├── button_led
+#           └── gpio_blink
+#           └── netled
+#
+########################################################################################################################
+
+# Menu que agrupa os aplicativos Raspberry
+menu "Raspberry"
+
+# Aplicativos do chip Raspberry Pi Pico W
+source "$APPSDIR/external/Raspberry/pico_w/Kconfig"
+
+endmenu
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

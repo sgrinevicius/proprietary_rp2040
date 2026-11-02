@@ -1,0 +1,63 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/i2c_scanner/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define as opcoes de configuracao do aplicativo 'i2c_scanner'.
+# A flag principal CONFIG_PROPRIETARY_I2C_SCANNER controla a compilacao e
+# inclusao do aplicativo no firmware. O aplicativo e uma ferramenta de
+# diagnostico para varrer os barramentos I2C e detectar dispositivos.
+#
+########################################################################################################################
+
+# Flag principal: ativa/desativa o aplicativo
+config PROPRIETARY_I2C_SCANNER
+
+    # Tipo booleano (aparece como caixa de selecao)
+    bool "Ativar aplicativo 'i2c scanner' (monitor de endereços/dispositivos I2C)"
+
+    # Valor padrao: desabilitado
+    default y
+
+    # Dependência de 'CONFIG_I2C_DRIVER=y'
+    depends on I2C_DRIVER
+
+    # Dependência de 'CONFIG_RP2040_I2C0=y'
+    depends on RP2040_I2C0
+
+    # Dependência de 'CONFIG_RP2040_I2C0_SCL_GPIO=5'
+    depends on RP2040_I2C0_SCL_GPIO=5
+
+    # Dependência de 'CONFIG_RP2040_I2C0_SDA_GPIO=4'
+    depends on RP2040_I2C0_SDA_GPIO=4
+
+    # Ajuda descritiva
+    ---help---
+        Habilita o aplicativo 'i2c_scanner', que varre os barramentos I2C
+        em busca de dispositivos. Por padrao, testa os enderecos de 0x03
+        a 0x77 e imprime os enderecos detectados.
+
+if PROPRIETARY_I2C_SCANNER
+
+config PROPRIETARY_I2C_SCANNER_PROGNAME
+    string "Program name"
+    default "i2c_scanner"
+    ---help---
+        Define o nome do comando que aparecera no NSH.
+
+config PROPRIETARY_I2C_SCANNER_PRIORITY
+    int "Task priority"
+    default 100
+
+config PROPRIETARY_I2C_SCANNER_STACKSIZE
+    int "Stack size"
+    default 2048
+
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

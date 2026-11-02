@@ -1,0 +1,100 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/bmp280_mqtt/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Objetivo: Opções de menuconfig do aplicativo.
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define as opcoes de configuracao do aplicativo 'bmp280_mqtt'.
+# A flag principal CONFIG_PROPRIETARY_BMP280_MQTT controla a compilacao e
+# inclusao do aplicativo no firmware.
+#
+# FUNCIONAMENTO DO MECANISMO DE CONFIGURACAO:
+#
+# - Quando a flag principal e ativada, os parametros adicionais (PROGNAME,
+#   PRIORITY, STACKSIZE) tornam-se visiveis e editaveis no menuconfig.
+# - O Makefile do aplicativo utiliza esses valores para registrar o programa
+#   no NSH e definir o comportamento de execucao.
+#
+# ESTRATEGIA DE RESOLUCAO DE CAMINHOS:
+#
+# - Este arquivo e referenciado pelo Kconfig mestre em
+#   'apps/external/Raspberry/pico_w/Kconfig' pela linha:
+#   source "$APPSDIR/external/Raspberry/pico_w/bmp280_mqtt/Kconfig"
+#
+# NOTA DIDATICA — SOBRE AS DEPENDENCIAS:
+#
+#   Cada linha 'depends on' torna a flag principal invisivel no menuconfig a menos que o simbolo correspondente
+#   ja esteja habilitado. Isso evita que o usuario selecione um aplicativo cujas dependencias nao existem,
+#   o que produziria um erro de link no momento do build. As dependencias deste aplicativo sao:
+#
+#     - SENSORS / SENSORS_BMP280 : framework de sensores e driver do BMP280.
+#     - NETUTILS_MQTTC           : biblioteca MQTT-C (apps/netutils/mqttc, versao 1.1.5).
+#     - NET / NET_TCP            : pilha de rede e sockets TCP (connect, socket).
+#     - NETUTILS_NETLIB          : utilitarios de rede (netlib_get_ipv4addr).
+#     - LIBC_NETDB               : resolucao de nomes (gethostbyname).
+#
+#   Nota: a dependencia e escrita como 'NETUTILS_MQTTC', e nao como 'MQTT'. O simbolo 'MQTT' nao existe neste
+#   tree — e apenas o rotulo visual de um menu. Se fosse usado como 'depends on MQTT', a condicao seria sempre
+#   falsa e a flag nunca poderia ser habilitada. Sempre conferir com '?' no menuconfig qual e o simbolo real
+#   declarado pela biblioteca.
+#
+########################################################################################################################
+
+# Flag principal: ativa/desativa o aplicativo
+config PROPRIETARY_BMP280_MQTT
+
+    # Tipo booleano (aparece como caixa de seleção)
+    bool "Leitura do BMP280 via MQTT"
+
+    # Valor padrão: desabilitado
+    default n
+
+    # Dependência do driver BMP280
+    depends on SENSORS_BMP280
+
+    # Dependência de habilitação de sensores
+    depends on SENSORS
+
+    # Dependência da biblioteca MQTT-C (apps/netutils/mqttc)
+    depends on NETUTILS_MQTTC
+
+    # Dependência de rede e sockets TCP
+    depends on NET
+    depends on NET_TCP
+
+    # Dependência dos utilitários de rede (netlib_get_ipv4addr)
+    depends on NETUTILS_NETLIB
+
+    # Dependência da resolução de nomes (gethostbyname)
+    depends on LIBC_NETDB
+
+    # Ajuda descritiva
+    ---help---
+        Enable the BMP280 MQTT app 
+
+if PROPRIETARY_BMP280_MQTT
+
+config PROPRIETARY_BMP280_MQTT_PROGNAME
+    string "Program name"
+    default "bmp280_mqtt"
+    ---help---
+        This is the name of the program that will be used when the NSH ELF
+        program is installed.
+
+config PROPRIETARY_BMP280_MQTT_PRIORITY
+    int "BMP280 MQTT task priority"
+    default 100
+
+config PROPRIETARY_BMP280_MQTT_STACKSIZE
+    int "BMP280 MQTT stack size"
+    default DEFAULT_TASK_STACKSIZE
+
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################

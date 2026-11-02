@@ -1,0 +1,37 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/bmp280_mqtt/Make.defs
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Objetivo: Registra o diretório do app em 'CONFIGURED_APPS'.
+#
+# FILOSOFIA E PAPEL ESTRUTURAL:
+#
+# Adiciona o diretório do aplicativo 'bmp280_mqtt' à lista de aplicativos configurados quando a flag 
+# 'CONFIG_PROPRIETARY_BMP280_MQTT' está ativa.
+#
+# NOTA DIDÁTICA — SOBRE O PAPEL DO 'Make.defs':
+#
+#   O sistema de build dos aplicativos do NuttX é composto por três arquivos que trabalham em conjunto:
+#
+#     - 'Kconfig'    : declara as opções que aparecem no menuconfig.
+#     - 'Make.defs'  : é lido durante a fase de configuração do build ('make olddefconfig'/'make menuconfig')
+#                      para registrar o diretório do aplicativo na variável 'CONFIGURED_APPS'. Se o aplicativo
+#                      não for registrado aqui, seu 'Makefile' nunca será processado, e o binário não será
+#                      gerado — mesmo com a flag do Kconfig habilitada.
+#     - 'Makefile'   : é lido depois, quando o build efetivamente compila o aplicativo.
+#
+#   Em outras palavras: 'Make.defs' decide SE o aplicativo entra no build; 'Makefile' decide COMO ele é
+#   compilado. Por isso o 'ifeq' abaixo: o diretório só é adicionado à lista se a flag correspondente estiver
+#   habilitada no '.config'.
+#
+########################################################################################################################
+
+ifeq ($(CONFIG_PROPRIETARY_BMP280_MQTT),y)
+CONFIGURED_APPS += $(APPDIR)/external/Raspberry/pico_w/bmp280_mqtt
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Make.defs'
+########################################################################################################################

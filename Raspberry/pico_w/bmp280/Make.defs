@@ -1,0 +1,19 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/bmp280/Make.defs
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL:
+# Adiciona o diretório do aplicativo 'bmp280' à lista de aplicativos
+# configurados quando a flag CONFIG_PROPRIETARY_BMP280 está ativa.
+#
+########################################################################################################################
+
+ifeq ($(CONFIG_PROPRIETARY_BMP280),y)
+CONFIGURED_APPS += $(APPDIR)/external/Raspberry/pico_w/bmp280
+endif
+
+########################################################################################################################
+# Fim do arquivo 'Make.defs'
+########################################################################################################################

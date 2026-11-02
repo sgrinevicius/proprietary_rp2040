@@ -1,0 +1,43 @@
+########################################################################################################################
+#
+# Arquivo: /nuttxspace_rp2040/apps/external/Raspberry/pico_w/button_led/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# FILOSOFIA E PAPEL ESTRUTURAL NA ARQUITETURA DE APLICATIVOS EXTERNOS:
+#
+# Este arquivo define a flag de ativacao do aplicativo 'button_led' no
+# sistema de configuracao Kconfig do NuttX.
+#
+# A flag CONFIG_PROPRIETARY_BUTTON_LED controla se o aplicativo sera
+# compilado e incluido no firmware.
+#
+# PAPEL DO APLICATIVO 'BUTTON_LED':
+#
+# - Demonstra o controle de um LED a partir da leitura de um botao.
+# - Utiliza o subsistema de GPIO do NuttX.
+# - Serve como referencia para aplicativos de hardware.
+#
+########################################################################################################################
+
+# Definicao da flag de ativacao do aplicativo
+config PROPRIETARY_BUTTON_LED
+
+    # Tipo da opcao: booleana
+    bool "Aplicativo Botão com LED"
+
+    # Valor padrao: ativado
+    default y
+
+    # Ajuda descritiva
+    ---help---
+        Habilita a compilacao do aplicativo 'button_led'.
+
+        O aplicativo acende um LED quando um botao e pressionado,
+        demonstrando leitura de entrada e escrita de saida via GPIO.
+
+        Nao possui dependencias adicionais.
+
+########################################################################################################################
+# Fim do arquivo 'Kconfig'
+########################################################################################################################
