@@ -9,5 +9,15 @@ build/
 *.elf
 *.map
 
+# Pasta de descarte / material fora do controle de versão
+_scratch/
+
 # Compactados de backup
 *.zip
+
+# Artefatos gerados pelo sistema de build do NuttX (In-Tree/Out-of-Tree)
+built/
+*.depend
+*.built
+Make.dep
+
