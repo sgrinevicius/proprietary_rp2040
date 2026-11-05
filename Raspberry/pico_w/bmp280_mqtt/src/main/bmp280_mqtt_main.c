@@ -212,6 +212,9 @@
 // Inclui as funções do gerenciador MQTT (iniciar, publicar, reconectar, finalizar)
 #include "mqtt_wnology.h"
 
+// Inclui o cabeçalho do Board Control para a função boardctl()
+#include <sys/boardctl.h>
+
 
 /*
  * Definições Gerais ---------------------------------------------------------------------------------------------------
@@ -228,6 +231,9 @@
 
 // Define o tamanho do buffer do payload JSON
 #define TAMANHO_BUFFER_JSON                        128
+
+// Define o tempo máximo sem publicações bem-sucedidas antes de reiniciar (5 minutos = 300 segundos)
+#define TEMPO_TIMEOUT_WATCHDOG_S                   300
 
 
 /*
@@ -258,6 +264,7 @@
 
 // Flag de execução: controla o loop principal (false quando 'Ctrl+C' for recebido)
 static volatile bool s_terminar_execucao = false;
+
 
 //______________________________________________________________________________________________________________________
 
@@ -299,7 +306,6 @@ static void tratador_sigint(int sinal) {
  */
 
 
-
 //**********************************************************************************************************************
 //* FUNCTION: int main(int argc, FAR char *argv[])
 //*
@@ -316,6 +322,9 @@ static void tratador_sigint(int sinal) {
 //*     - Copia a amostra mais recente com 'orb_copy' e a mantém em memória;
 //*     - Processa tráfego MQTT e reconecta se necessário;
 //*     - Publica um JSON com a última amostra caso o intervalo configurado tenha decorrido.
+//*
+//*   Um Watchdog de software monitora o sucesso das publicações. Se a aplicação ficar mais de 5 minutos sem
+//*   conseguir publicar (indicando queda silenciosa de rede ou socket morto), o sistema reinicia via 'boardctl'.
 //*
 //*   Ao receber Ctrl+C, sai do loop, encerra a sessão MQTT, fecha o LED e desfaz a assinatura uORB.
 //*
@@ -342,8 +351,11 @@ int main(int argc, FAR char *argv[]) {
     // Intervalo entre publicações, em segundos (padrão ou argumento)
     int intervalo_s = INTERVALO_PUBLICACAO_S;
 
-    // Marca temporal da última publicação
+    // Marca temporal da última tentativa de publicação
     time_t ultima_publicacao_s;
+
+    // Marca temporal da última publicação BEM-SUCEDIDA (usada pelo Watchdog)
+    time_t ultima_publicacao_sucesso_s;
 
     // Marca temporal da iteração atual
     time_t agora_s;
@@ -453,6 +465,9 @@ int main(int argc, FAR char *argv[]) {
     // Marca o instante da "última publicação" como agora, para atrasar a primeira publicação
     ultima_publicacao_s = time(NULL);
 
+    // Inicializa a marca temporal do Watchdog de sucesso (o tempo começa a contar a partir de agora)
+    ultima_publicacao_sucesso_s = time(NULL);
+
     /*
     * Loop principal:
     */
@@ -460,14 +475,40 @@ int main(int argc, FAR char *argv[]) {
     // Loop principal de leitura, controlado pela flag 's_terminar_execucao'
     while (!s_terminar_execucao) {
 
+        // Obtém o instante atual a cada iteração para atualizar o Watchdog
+        agora_s = time(NULL);
+
+        /*
+        * Verificação do Watchdog de Software:
+        */
+
+        // Verifica se o tempo desde a última publicação bem-sucedida excedeu o limite
+        if ((agora_s - ultima_publicacao_sucesso_s) >= TEMPO_TIMEOUT_WATCHDOG_S) {
+		//if (true) { // ou if ((agora_s - ultima_publicacao_sucesso_s) >= 10) // Teste de reset imediato
+
+            // Registra emergência no syslog (indica que a rede caiu silenciosamente)
+            syslog(LOG_EMERG, 
+                   "[bmp280_mqtt]: Watchdog: Sem publicacao há %d s. Reiniciando...\n",
+                   TEMPO_TIMEOUT_WATCHDOG_S);
+
+            // Aguarda 2 segundos para garantir que a mensagem de log seja transmitida pela serial
+            sleep(2);
+
+            // Reinicia o microcontrolador (NuttX Board Control Reset)
+            boardctl(BOARDIOC_RESET,                                      //
+                     0);                                                  //
+
+        } // fim if watchdog
+
+
         /*
         * Aguarda evento no tópico uORB:
         */
 
         // Aguarda evento no tópico com timeout de 1 segundo
-        ret = poll(&fds,                                              // Estrutura de descritores
-                   1,                                                // Número de descritores
-                   BMP280_SENSOR_TIMEOUT_MS);                     // Timeout em milissegundos
+        ret = poll(&fds,                                                  // Estrutura de descritores
+                   1,                                                    // Número de descritores
+                   BMP280_SENSOR_TIMEOUT_MS);                         // Timeout em milissegundos
 
         // Verifica se 'poll' falhou com erro diferente de interrupção
         if (ret < 0 && errno != EINTR) {
@@ -488,9 +529,9 @@ int main(int argc, FAR char *argv[]) {
         if (ret > 0 && (fds.revents & POLLIN)) {
 
             // Copia os dados do evento uORB para a estrutura local
-            ret = orb_copy(meta,                                         // Metadata do tópico
-                           fd_uorb,                                  // Descritor da assinatura
-                           &dados);                              // Buffer de destino
+            ret = orb_copy(meta,                                                // Metadata do tópico
+                           fd_uorb,                                         // Descritor da assinatura
+                           &dados);                                     // Buffer de destino
 
             // Verifica se a cópia foi bem-sucedida
             if (ret != OK) {
@@ -507,6 +548,7 @@ int main(int argc, FAR char *argv[]) {
             tem_amostra = true;
 
         } // fim if
+
 
         /*
         * Processa tráfego MQTT e reconecta se necessário:
@@ -535,10 +577,7 @@ int main(int argc, FAR char *argv[]) {
         * Verifica se é hora de publicar:
         */
 
-        // Obtém o instante atual
-        agora_s = time(NULL);
-
-        // Verifica se o intervalo desde a última publicação já decorreu
+        // Verifica se o intervalo desde a última tentativa de publicação já decorreu
         if ((agora_s - ultima_publicacao_s) >= intervalo_s) {
 
             // Verifica se há amostra válida para publicar
@@ -569,20 +608,23 @@ int main(int argc, FAR char *argv[]) {
                  */
 
                  //
-                comprimento_json = snprintf(json,                                  // Buffer de destino
-                                            sizeof(json),                         // Tamanho do buffer
+                comprimento_json = snprintf(json,                                 	// Buffer de destino
+                                            sizeof(json),                         	// Tamanho do buffer
                                             "{\"data\":{\"pressao\":%d.%02d,"
                                             "\"temperatura\":%d.%02d}}",
-                                            pressao_centesimos / 100,                   // Parte inteira da pressão
-                                            abs(pressao_centesimos % 100),           // Centésimos da pressão
-                                            temperatura_centesimos / 100,              // Parte inteira da temperatura
-                                            abs(temperatura_centesimos % 100));      // Centésimos da temperatura
+                                            pressao_centesimos / 100,                    // Parte inteira da pressão
+                                            abs(pressao_centesimos % 100),            // Centésimos da pressão
+                                            temperatura_centesimos / 100,                // Parte inteira da temperatura
+                                            abs(temperatura_centesimos % 100));       // Centésimos da temperatura
 
                 // Publica o payload no tópico state da plataforma WEGnology
                 if (mqtt_wnology_publicar(json, comprimento_json) == MQTT_OK) {
 
                     // Acende o LED externo por 100 ms para indicar publicação bem-sucedida
                     mqtt_flash_led();
+
+                    // Atualiza o timestamp do Watchdog (sinaliza que a conexão está viva)
+                    ultima_publicacao_sucesso_s = agora_s;
 
                     // Exibe mensagem informativa
                     printf("[bmp280_mqtt]: Publicado: %s\n", json);
